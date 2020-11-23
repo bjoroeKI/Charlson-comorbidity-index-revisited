@@ -13,7 +13,7 @@
 * Import patient file in long format. The patient file should contain three columns:
 * One column with patient/ID numbers,
 * one column with ICD codes, 
-*  and one column with dates. 
+* and one column with dates. 
 * The codes should be a string variable with different ICD codes separated by a whitespace. 
 * ICD7 and ICD8 codes can have a comma, ICD9 and ICD10 codes should not have a dot.
 * The date column should be formatted as yyyymmdd.
