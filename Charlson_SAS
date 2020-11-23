@@ -1,1 +1,502 @@
 
+
+/*+---------------------------------------------------------------------+
+ | Program..........: Charlsoon Comorbidity Index SAS (v1)			      	|
+ |																		                                  |
+ | Function.........: 1. To create a comorbidity index based on			    |
+ |						 DX codes									                              	|
+ |															                                  			|
+ | 																	                                  	|
+ | Date.............: 2020-11-13									                     	|
+ | SAS-version......: SAS 9.4 (Base) 							                  		|
+ | 																	                                  	|
+ | Author...........: Jonas Söderling / Bjorn Roelstraete								|
+ | Dataset/Tables...: 												                        	|
+ |																                                   		|
+ |																                                  		|
+ | History..........: 										                        			|
+ | 																                                   		|
+ +--------------------------------------------------------------------+*/ 
+
+
+/*#########################################################################################################
+# This script was based on the publication:
+#  
+#  Adaptation of the Charlson comorbidity index for register-based research in Sweden. 
+#  Jonas F. Ludvigsson, Peter Appelros, Johan Askling, Liisa Byberg, Juan-Jesus Carrero, Anna Mia Ekström, Magnus Ekström, Karin Ekström Smedby, 
+#  Hannes Hagström, Stefan James, Bengt Järvholm, Karl Michaelsson, Nancy L. Pedersen, Helene Sundelin, Kristina Sundquist, Johan Sundström. Clinical Epidemiology, 2020.
+#
+# The actual scripts (available in R, STATA and SAS) were created by Bjorn Roelstraete and Jonas Söderling. Data management: Mariam Lashkariani
+##########################################################################################################
+
+## Help
+
+# Import patient file in long format. The patient file should contain three columns:
+# One column with patient/ID numbers,
+# one column with ICD codes, 
+# and one column with dates. 
+# The codes should be a string variable with different ICD codes separated by a whitespace. 
+# ICD7 and ICD8 codes can have a comma, ICD9 and ICD10 codes should not have a dot.
+# The date column should be formatted as yyyymmdd. */
+
+
+
+*------------------------------------------*;
+*---									---*;
+*--- 			LIBNAMES				---*;
+*---									---*;
+*------------------------------------------*;
+LIBNAME TEMP '';
+
+
+
+
+*------------------------------------------*;
+*---									---*;
+*--- 			OPTIONS					---*;
+*---									---*;
+*------------------------------------------*;
+OPTION linesize=200;
+
+
+
+
+*------------------------------------------*;
+*---									---*;
+*--- 		IMPORT PATIENT FILE 			---*;
+*---									---*;
+*------------------------------------------*;
+%LET IMPORT = ;
+
+data TEMP.testdata (compress=yes);
+	infile "&IMPORT.\patients_08October.txt"
+	delimiter = ',' MISSOVER DSD lrecl=32767 firstobs=2 ;
+         informat LopNr best32. ;
+         informat INDATUMA $12. ;
+         informat DIAGNOS $200. ;
+         format LopNr best12. ;
+         format INDATUMA $12. ;
+         format DIAGNOS $200. ;
+      input
+                  LopNr
+                  INDATUMA $
+                  DIAGNOS  $
+                        ;
+run;
+
+
+
+*------------------------------------------*;
+*---									---*;
+*--- 	CHARLSON COMORBIDITY INDEX		---*;
+*---									---*;
+*------------------------------------------*;
+data TEMP.CCI0 (compress=yes);
+	set TEMP.testdata;
+
+	format indatum YYMMDD10.;
+	indatum = input(indatuma, YYMMDD8.);
+
+	array DX $ dia1-dia50;
+
+	NumDias = countw(diagnos, ' ');
+	do i=1 to NumDias;
+		DX(i) = scan(diagnos, i, ' ');
+	end;
+	drop i;
+
+
+	DO i=1 to NumDias;
+
+		*--- ICD7 ---*;
+		if 1968 >= year(indatum) then do;
+			if DX(i) IN: ('140', '141', '142', '143', '144', '145', '146', '147', '148', '149', 
+						  '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', 
+						  '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', 
+						  '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', 
+						  '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', 
+						  '190', 		'192', '193', '194', '195', '196', '197', 
+						  '200', '201', '202', '203', '204')									     		then _malignancy = 1;
+
+			if DX(i) IN: ('330', '331', '332', '333', '334')		 										then _cerebrovascular = 1;
+
+			if DX(i) IN: ('502', '527,1')		 	         												then _copd = 1;
+
+			if DX(i) IN: ('422,21', '422,22', '434,1', '434,2')		 										then _chf = 1;
+
+			if DX(i) IN: ('304', '305')		 																then _dementia = 1;
+
+			if DX(i) IN: ('260,09')		 																	then _diabetes = 1;
+
+			if DX(i) IN: ('260,2', '260,21', '260,29', '260,3', '260,4', '260,49', '260,99')				then _diabetes_eod = 1;
+
+			if DX(i) IN: ('351', '352', '357')																then _hemiplegia = 1;
+
+			if DX(i) IN: ('198', '199', '156,91')															then _metastatic_cancer = 1;
+
+			if DX(i) IN: ('581')																			then _mild_liver_disease = 1;
+
+			if DX(i) IN: ('592', '593', '792')																then _severe_kidney_disease = 1;
+
+			if DX(i) IN: ('462,1')																			then _severe_liver_disease = 1;
+
+			if DX(i) IN: ('420,1')																			then _myocardial_infarction = 1;
+
+			if DX(i) IN: ('501', '523', '524', '525', '241', '526')											then _other_cpd = 1;
+
+			if DX(i) IN: ('451', '453', '450,1')															then _peripheral_vascular = 1;
+
+			if DX(i) IN: ('710', '722', '456,0', '456,1', '456,2', '456,3', '722,23')						then _rheumatic = 1;
+
+			if DX(i) IN: ('540', '541', '542')																then _ulcer = 1;
+		end;
+
+
+		*--- ICD8 ---*;
+		if 1969 <= year(indatum) <= 1986 then do;
+			if DX(i) IN: ('140', '141', '142', '143', '144', '145', '146', '147', '148', '149', 
+						  '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', 
+						  '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', 
+						  '170', '171', '172', 		  '174',
+						  '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', 
+						  '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', 
+						  '200', '201', '202', '203', '204', '205', '206', '207',        '209')				then _malignancy = 1;
+
+			if DX(i) IN: ('430', '431', '432', '433', '434', '435', '436', '437', '438')		 			then _cerebrovascular = 1;
+
+			if DX(i) IN: ('491', '492')		 														then _copd = 1;
+
+			if DX(i) IN: ('427', '428', '425,08', '425,09', '427,1')		 								then _chf = 1;
+
+			if DX(i) IN: ('290')		 																	then _dementia = 1;
+
+			if DX(i) IN: ('250', '250,07', '250,08')														then _diabetes = 1;
+
+			if DX(i) IN: ('250,01', '250,02', '250,03', '250,04', '250,05')									then _diabetes_eod = 1;
+
+			if DX(i) IN: ('343', '344')																		then _hemiplegia = 1;
+
+			if DX(i) IN: ('785,3')																			then _liver_special = 1;
+
+			if DX(i) IN: ('196', '197', '198', '199')														then _metastatic_cancer = 1;
+
+			if DX(i) IN: ('571', '573', '070')																then _mild_liver_disease = 1;
+
+			if DX(i) IN: ('582', '583', '584', '593', '792', '403,99', '404,99', '792,99', 'Y29,01')		then _severe_kidney_disease = 1;
+
+			if DX(i) IN: ('456', '571,9', '573,02')															then _severe_liver_disease = 1;
+
+			if DX(i) IN: ('410', '411', '412,01', '412,91')													then _myocardial_infarction = 1;
+
+			if DX(i) IN: ('490', '493', '515', '516', '517', '518')		     								then _other_cpd = 1;
+
+			if DX(i) IN: ('440', '441', '443,1', '443,9')													then _peripheral_vascular = 1;
+
+			if DX(i) IN: ('446', '696', '716', '734', 
+						  '712,0', '712,1', '712,2', '712,3', '712,5', '734,1', '734,9')					then _rheumatic = 1;
+
+			if DX(i) IN: ('531', '532', '533', '534')														then _ulcer = 1;
+		end;
+
+
+		*--- ICD9 ---*;
+		if 1987 <= year(indatum) <= 1997 then do;
+			if DX(i) IN: ('140', '141', '142', '143', '144', '145', '146', '147', '148', '149', 
+						  '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', 
+						  '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', 
+						  '170', '171', '172', '173', '174', '175', '176', '177', '178', '179',
+						  '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', 
+						  '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', 
+						  '200', '201', '202', '203', '204', '205', '206', '207', '208')					then _malignancy = 1;
+
+			if DX(i) IN: ('430', '431', '432', '433', '434', '435', '436', '437', '438')		 			then _cerebrovascular = 1;
+
+			if DX(i) IN: ('491', '492', '496')		 														then _copd = 1;
+
+			if DX(i) IN: ('428',  '402A', '402B', '402X', '404A', '404B', '404X', 
+						  '425E', '425F', '425H', '425W', '425X')											then _chf = 1;
+		 
+			if DX(i) IN: ('290', '294B',  '331A', '331B', '331C', '331X')									then _dementia = 1;
+
+			if DX(i) IN: ('250A', '250B', '250C')		 													then _diabetes = 1;
+
+			if DX(i) IN: ('250D', '250E', '250F', '250G')													then _diabetes_eod = 1;
+
+			if DX(i) IN: ('342', '343', '344A', '344B', '344C', '344D', '344E', '344F')						then _hemiplegia = 1;
+
+			if DX(i) IN: ('079J', '279K')																	then _aids = 1;
+
+			if DX(i) IN: ('789F')																			then _liver_special = 1;
+
+			if DX(i) IN: ('196', '197', '198', '199A', '199B')												then _metastatic_cancer = 1;
+
+			if DX(i) IN: ('573', '571C', '571E', '571F', '070')												then _mild_liver_disease = 1;
+
+			if DX(i) IN: ('582',  '583',  '585',  '586', '403A', '403B', '403X', 
+						  '588A', 'V42A', 'V45B', 'V56')													then _severe_kidney_disease = 1;
+
+			if DX(i) IN: ('456A', '456B', '456C', '572C', '572D', '572E')									then _severe_liver_disease = 1;
+
+			if DX(i) IN: ('410', '412')																		then _myocardial_infarction = 1;
+
+			if DX(i) IN: ('505', '506', '507', '508', '516', '517', '490', 
+						  '493', '494', '495', '501', '502', '503', '504')									then _other_cpd = 1;
+
+			if DX(i) IN: ('440', '441', '557', '443B', '443X', '447B')										then _peripheral_vascular = 1;
+
+			if DX(i) IN: ('446', '714', '720', '725', 
+						  '696A', '710A', '710B', '710C', '710D', '710E', '719D')							then _rheumatic = 1;
+
+			if DX(i) IN: ('531', '532', '533', '534')														then _ulcer = 1;
+		end;
+
+
+			*--- ICD10 ---*;
+		if 1997 <= year(indatum) then do;
+			if DX(i) IN: ('C00', 'C01', 'C02', 'C03', 'C04', 'C05', 'C06', 'C07', 'C08', 'C09', 
+						  'C10', 'C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 
+						  'C20', 'C21', 'C22', 'C23', 'C24', 'C25', 'C26', 'C27', 'C28', 'C29', 
+						  'C30', 'C31', 'C32', 'C33', 'C34', 'C35', 'C36', 'C37', 'C38', 'C39',
+						  'C40', 'C41', 'C42', 'C43', 'C44', 'C45', 'C46', 'C47', 'C48', 'C49', 
+						  'C50', 'C51', 'C52', 'C53', 'C54', 'C55', 'C56', 'C57', 'C58', 'C59',
+						  'C60', 'C61', 'C62', 'C63', 'C64', 'C65', 'C66', 'C67', 'C68', 'C69',
+						  'C70', 'C71', 'C72', 'C73', 'C74', 'C75', 'C76', 'C77', 'C78', 'C79',
+						  'C80', 'C81', 'C82', 'C83', 'C84', 'C85', 'C86', 		  'C88', 'C89',
+						  'C90', 'C91', 'C92', 'C93', 'C94', 'C95', 'C96', 'C97')							then _malignancy = 1;
+
+			if DX(i) IN: ('G45', 'I60', 'I61', 'I62', 'I63', 'I64', 'I67', 'I69')		 					then _cerebrovascular = 1;
+
+			if DX(i) IN: ('J43', 'J44')		 																then _copd = 1;
+
+			if DX(i) IN: ('I110', 'I130', 'I132', 'I255', 'I420', 'I426', 
+						  'I427', 'I428', 'I429', 'I43',  'I50')											then _chf = 1;
+
+			if DX(i) IN: ('F00', 'F01',  'F02', 'F03', 'F051', 'G30', 'G311', 'G319')						then _dementia = 1;
+
+			if DX(i) IN: ('E100', 'E101',  'E110', 'E111', 'E120', 'E121', 'E130', 'E131', 'E140', 'E141')	then _diabetes = 1;
+
+			if DX(i) IN: ('E102', 'E103', 'E104', 'E105', 'E107', 'E112', 'E113', 'E114', 'E115', 'E116',
+						  'E117', 'E122', 'E123', 'E124', 'E125', 'E126', 'E127', 'E132', 'E133', 'E134',
+						  'E135', 'E136', 'E137', 'E142', 'E143', 'E144', 'E145', 'E146', 'E147')		 	then _diabetes_eod = 1;
+
+			if DX(i) IN: ('G114', 'G80', 'G81', 'G82', 'G830', 'G831', 'G832', 'G833', 'G838')						then _hemiplegia = 1;
+
+			if DX(i) IN: ('B20', 'B21', 'B22', 'B23', 'B24', 'F024', 'Z711', 'Z219', 'Z114', 'R75', 'O987')	then _aids = 1;
+
+			if DX(i) IN: ('R18')																			then _liver_special = 1;
+
+			if DX(i) IN: ('C77', 'C78', 'C79', 'C80')														then _metastatic_cancer = 1;
+
+			if DX(i) IN: ('B15', 'B16', 'B17', 'B18', 'B19', 'K754', 'K746', 'K73', 'K703')					then _mild_liver_disease = 1;
+
+			if DX(i) IN: ('I120', 'I131', 'Z992', 'Z940', 'Z49',  'Q614', 'Q613', 'Q612', 'Q611' 
+						  'N250', 'N19',  'N18',  'N11',  'N057', 'N056', 'N055', 'N054', 'N053',
+						  'N052', 'N037', 'N036', 'N035', 'N034', 'N033', 'N032', 'Z992')					then _severe_kidney_disease = 1;
+
+			if DX(i) IN: ('I850', 'I859', 'I982', 'I983')													then _severe_liver_disease = 1;
+		  
+			if DX(i) IN: ('I21', 'I22', 'I252')																then _myocardial_infarction = 1;
+
+			if DX(i) IN: ('J65', 'J66', 'J67', 'J68', 'J69', 'J70', 'J41', 'J42',
+			              'J45', 'J46', 'J47', 'J60', 'J61', 'J62', 'J63', 'J64')			                then _other_cpd = 1;
+
+			if DX(i) IN: ('I70', 'I71', 'I731', 'I738', 'I739', 'I771', 'I790', 'I792', 'K55')				then _peripheral_vascular = 1;
+
+			if DX(i) IN: ('M05', 'M06',  'M070', 'M071', 'M072', 'M073', 'M08', 'M123', 
+						  'M13', 'M30',  'M313', 'M314', 'M315', 'M316', 'M32', 'M33', 
+						  'M34', 'M350', 'M351', 'M353', 'M45',  'M46')										then _rheumatic = 1;
+
+			if DX(i) IN: ('K25', 'K26', 'K27', 'K28')														then _ulcer = 1;
+		end;
+	END;
+run;
+
+proc summary data=TEMP.cci0 nway;
+	class LopNr;
+	var	_malignancy 
+		_cerebrovascular 
+		_copd 
+		_chf 
+		_dementia 
+		_diabetes 
+		_diabetes_eod 
+		_hemiplegia 
+		_aids 
+		_liver_special 
+		_metastatic_cancer 
+		_mild_liver_disease 
+		_severe_kidney_disease 
+		_severe_liver_disease 
+		_myocardial_infarction
+		_other_cpd 
+		_peripheral_vascular 
+		_rheumatic 
+		_ulcer
+		;
+	output out=sum_cci0 (drop=_type_ rename=(_freq_=n_obs))
+	sum =
+	;
+run;
+
+
+data sum_cci1;
+	set sum_cci0;
+
+	array _CCI_GRP(19)	_malignancy 
+						_cerebrovascular 
+						_copd 
+						_chf 
+						_dementia 
+						_diabetes 
+						_diabetes_eod 
+						_hemiplegia 
+						_aids 
+						_liver_special 
+						_metastatic_cancer 
+						_mild_liver_disease 
+						_severe_kidney_disease 
+						_severe_liver_disease 
+						_myocardial_infarction
+						_other_cpd 
+						_peripheral_vascular 
+						_rheumatic 
+						_ulcer;
+
+	array CCI_GRP(19)	malignancy 
+						cerebrovascular 
+						copd 
+						chf 
+						dementia 
+						diabetes 
+						diabetes_eod 
+						hemiplegia 
+						aids 
+						liver_special 
+						metastatic_cancer 
+						mild_liver_disease 
+						severe_kidney_disease 
+						severe_liver_disease 
+						myocardial_infarction
+						other_cpd 
+						peripheral_vascular 
+						rheumatic 
+						ulcer;
+
+	do i=1 to 19;
+		CCI_GRP(i) = (_CCI_GRP(i) >0);
+	end;
+	drop i;
+
+	if mild_liver_disease = 1 AND liver_special = 1 then do;
+		mild_liver_disease   = 0;
+		severe_liver_disease = 1;
+	end;
+
+	if mild_liver_disease = 1 AND severe_liver_disease = 1 then do;
+		mild_liver_disease   = 0;
+	end;
+
+    if diabetes = 1 AND diabetes_eod = 1 then do;
+		diabetes   = 0;
+	end;
+
+	CCI_unweighted =sum(malignancy, 
+						cerebrovascular,
+						copd,
+						chf,
+						dementia,
+						diabetes,
+						diabetes_eod,
+						hemiplegia,
+						aids,
+						/*liver_special,*/
+						metastatic_cancer,
+						mild_liver_disease,
+						severe_kidney_disease,
+						severe_liver_disease,
+						myocardial_infarction,
+						other_cpd,
+						peripheral_vascular,
+						rheumatic,
+						ulcer);
+
+	CCI_weighted =	sum(malignancy 		  	  * 2, 
+						cerebrovascular 	  * 1,
+						copd  				  * 1,
+						chf  				  * 1,
+						dementia   			  * 1,
+						diabetes  			  * 1,
+						diabetes_eod  		  * 2,
+						hemiplegia  		  * 2,
+						aids  			 	  * 6,
+						liver_special  		  * 0,
+						metastatic_cancer  	  * 6,
+						mild_liver_disease    * 1,
+						severe_kidney_disease * 2,
+						severe_liver_disease  * 3,
+						myocardial_infarction * 1,
+						other_cpd  			  * 1,
+						peripheral_vascular   * 1,
+						rheumatic  			  * 1,
+						ulcer 				  * 1);
+
+	drop _:;
+run;
+
+
+/*
+Weights to compute the Charlson score:
+Cancer: 6 
+Aids: 6
+Severe liver disease: 3
+Mild liver disease AND liver special: 3
+Hemiplegia: 2
+Diabetes with end organ failure:2
+Kidney disease: 2
+Malignancy: 2 
+All others: 1
+
+proc univariate data=sum_cci1;
+	var cci_unweighted cci_weighted;
+	histogram /endpoints = 0 to 25 by 1;
+run;
+*/
+
+
+*------------------------------------------*;
+*---									---*;
+*--- 		SAVE THE RESULTS			---*;
+*---									---*;
+*------------------------------------------*;
+data TEMP.cci_sas (compress=yes);
+	set sum_cci1;
+run;
+
+proc export data=sum_cci1
+			outfile=" "
+			dbms=csv
+			replace
+			;
+quit;
+
+
+
+
+*------------------------------------------*;
+*---									---*;
+*--- 		CLEAN THE TEMP LIB			---*;
+*---									---*;
+*------------------------------------------*;
+proc datasets lib=TEMP nolist;
+	save cci_sas;
+quit;
+
+
+*------------------------------------------*;
+*---									---*;
+*--- 		CLEAN THE WORK LIB			---*;
+*---									---*;
+*------------------------------------------*;
+proc datasets lib=WORK nolist kill;
+quit;
+
