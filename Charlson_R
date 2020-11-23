@@ -26,7 +26,7 @@ library(dplyr)
 # Import patient file and call it "patients"
 patients <- 
 
-# Rename the date column to "datum", the ICD codes column to diagnos and the patient/id column to "group" 
+# Rename the date column to "datum", the ICD codes column to "diagnos" and the patient/id column to "group" 
 # and drop the other columns
 patients <- rename(patients, group=LopNr ,datum=INDATUMA , diagnos=diagnos) %>% select(group, datum, diagnos)
 
@@ -318,22 +318,19 @@ Matrix <- Matrix %>% mutate(Aids=if_else(!is.na(date.Aids),1,0,missing=0))
 rm(icd9, icd10, ICD9, ICD10, ptnts)
 
 
-
+# Calculate the unweighted comorbidity index
 Matrix$CCIunw <- Matrix$Myocardial_infarction + Matrix$Congestive_heart_failure + Matrix$Peripheral_vascular_disease + 
               Matrix$Cerebrovascular_disease + Matrix$Chronic_obstructive_pulmonary_disease + Matrix$Chronic_other_pulmonary_disease + 
               Matrix$Rheumatic_disease + Matrix$Dementia + Matrix$Hemiplegia + Matrix$Diabetes_without_chronic_complication + 
               Matrix$Diabetes_with_chronic_complication + Matrix$Renal_disease + Matrix$Mild_liver_disease + Matrix$Severe_liver_disease + 
               Matrix$Peptic_ulcer_disease + Matrix$Malignancy + Matrix$Metastatic_solid_tumor + Matrix$Aids 
 
+# Calculate the weighted comorbidity index
 Matrix$CCIw <- Matrix$Myocardial_infarction + Matrix$Congestive_heart_failure + Matrix$Peripheral_vascular_disease + 
               Matrix$Cerebrovascular_disease + Matrix$Chronic_obstructive_pulmonary_disease + Matrix$Chronic_other_pulmonary_disease + 
               Matrix$Rheumatic_disease + Matrix$Dementia + 2*Matrix$Hemiplegia + Matrix$Diabetes_without_chronic_complication + 
               2*Matrix$Diabetes_with_chronic_complication + 2*Matrix$Renal_disease + Matrix$Mild_liver_disease + 3*Matrix$Severe_liver_disease + 
               Matrix$Peptic_ulcer_disease + 2*Matrix$Malignancy + 6*Matrix$Metastatic_solid_tumor + 6*Matrix$Aids 
 
-matrix <- select(Matrix, -contains("."))
-table(matrix$CCIunw)
-
-write.csv(matrix, "C:\\Users\\bjoroe\\Documents\\Projects\\Misc\\Charlson\\Charlson.txt", row.names = F)
-#Matrix$CCI_cat <- ifelse(Matrix$CCI==0,0,ifelse(Matrix$CCI<3,1,ifelse(Matrix$CCI<5,2,3)))
-Matrix$CCI_cat <- ifelse(Matrix$CCI==0,0,ifelse(Matrix$CCI<3,1,2))
+# Delete date and diagnos information in case not needed 
+Matrix <- select(Matrix, -contains("."))
