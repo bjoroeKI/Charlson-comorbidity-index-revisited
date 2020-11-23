@@ -1,21 +1,21 @@
 
 
 /*+---------------------------------------------------------------------+
- | Program..........: Charlsoon Comorbidity Index SAS (v1)			      	|
- |																		                                  |
- | Function.........: 1. To create a comorbidity index based on			    |
- |						 DX codes									                              	|
- |															                                  			|
- | 																	                                  	|
- | Date.............: 2020-11-13									                     	|
- | SAS-version......: SAS 9.4 (Base) 							                  		|
- | 																	                                  	|
- | Author...........: Jonas Söderling / Bjorn Roelstraete								|
- | Dataset/Tables...: 												                        	|
- |																                                   		|
- |																                                  		|
- | History..........: 										                        			|
- | 																                                   		|
+ | Program..........: Charlsoon Comorbidity Index SAS (v1)				|
+ |																		|
+ | Function.........: 1. To create a comorbidity index based on			|
+ |						 DX codes										|
+ |																		|
+ | 																		|
+ | Date.............: 2020-11-13										|
+ | SAS-version......: SAS 9.4 (Base) 									|
+ | 																		|
+ | Author...........: Jonas Söderling / Bjorn Roelstraete				|
+ | Dataset/Tables...: 													|
+ |																		|
+ |																		|
+ | History..........: 													|
+ | 																		|
  +--------------------------------------------------------------------+*/ 
 
 
@@ -69,7 +69,7 @@ OPTION linesize=200;
 %LET IMPORT = ;
 
 data TEMP.testdata (compress=yes);
-	infile "&IMPORT.\patients_08October.txt"
+	infile "&IMPORT.\ "
 	delimiter = ',' MISSOVER DSD lrecl=32767 firstobs=2 ;
          informat LopNr best32. ;
          informat INDATUMA $12. ;
@@ -387,6 +387,7 @@ data sum_cci1;
 	end;
 	drop i;
 
+	/* Set correct liver disease */
 	if mild_liver_disease = 1 AND liver_special = 1 then do;
 		mild_liver_disease   = 0;
 		severe_liver_disease = 1;
@@ -396,6 +397,7 @@ data sum_cci1;
 		mild_liver_disease   = 0;
 	end;
 
+	/* Set correct diabetes disease */
     if diabetes = 1 AND diabetes_eod = 1 then do;
 		diabetes   = 0;
 	end;
@@ -499,4 +501,6 @@ quit;
 *------------------------------------------*;
 proc datasets lib=WORK nolist kill;
 quit;
+
+
 
