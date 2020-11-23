@@ -1,24 +1,5 @@
 
 
-/*+---------------------------------------------------------------------+
- | Program..........: Charlsoon Comorbidity Index SAS (v1)				|
- |																		|
- | Function.........: 1. To create a comorbidity index based on			|
- |						 DX codes										|
- |																		|
- | 																		|
- | Date.............: 2020-11-13										|
- | SAS-version......: SAS 9.4 (Base) 									|
- | 																		|
- | Author...........: Jonas Söderling / Bjorn Roelstraete				|
- | Dataset/Tables...: 													|
- |																		|
- |																		|
- | History..........: 													|
- | 																		|
- +--------------------------------------------------------------------+*/ 
-
-
 /*#########################################################################################################
 # This script was based on the publication:
 #  
