@@ -231,6 +231,11 @@ bys group: keep if _n == 1
 ******************************
  quietly replace ch10=0  if ch11>0
 
+******************************
+* Set correct cancer disease
+******************************
+ quietly replace ch17=0  if ch18>0
+ 
  ************************* 
 * Give names to variables
 ************************* 
