@@ -387,10 +387,15 @@ data sum_cci1;
 	end;
 
 	/* Set correct diabetes disease */
-    if diabetes = 1 AND diabetes_eod = 1 then do;
+        if diabetes = 1 AND diabetes_eod = 1 then do;
 		diabetes   = 0;
 	end;
 
+        /* Set correct cancer disease */
+        if malignancy = 1 AND metastatic_cancer = 1 then do;
+		malignancy   = 0;
+	end;
+	
 	CCI_unweighted =sum(malignancy, 
 						cerebrovascular,
 						copd,
