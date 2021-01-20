@@ -276,7 +276,7 @@ data TEMP.CCI0 (compress=yes);
 
 			if DX(i) IN: ('C77', 'C78', 'C79', 'C80')														then _metastatic_cancer = 1;
 
-			if DX(i) IN: ('B15', 'B16', 'B17', 'B18', 'B19', 'K754', 'K746', 'K73', 'K703')					then _mild_liver_disease = 1;
+			if DX(i) IN: ('B15', 'B16', 'B17', 'B18', 'B19', 'K754', 'K746', 'K73', 'K703', 'K709')					then _mild_liver_disease = 1;
 
 			if DX(i) IN: ('I120', 'I131', 'Z992', 'Z940', 'Z49',  'Q614', 'Q613', 'Q612', 'Q611' 
 						  'N250', 'N19',  'N18',  'N11',  'N057', 'N056', 'N055', 'N054', 'N053',
