@@ -220,7 +220,7 @@ rm(icd7, icd8, icd9, icd10, ICD7, ICD8, ICD9, ICD10, ptnts)
 icd7  <- "\\<581"
 icd8  <- "\\<070|\\<571|\\<573"
 icd9 <-  "\\<070|\\<571C|\\<571E|\\<571F|\\<573"
-icd10 <- "\\<B15|\\<B16|\\<B17|\\<B18|\\<B19|\\<K703|\\<K73|\\<K746|\\<K754"
+icd10 <- "\\<B15|\\<B16|\\<B17|\\<B18|\\<B19|\\<K703|\\<K709|\\<K73|\\<K746|\\<K754"
 
 ICD7  <- patients[patients$datum<19690000,][grep(icd7,patients[patients$datum<19690000,]$diagnos),]
 ICD8  <- patients[patients$datum >= 19690000 & patients$datum < 19870000,][grep(icd8,patients[patients$datum >= 19690000 & patients$datum < 19870000,]$diagnos),]
@@ -257,7 +257,7 @@ ICD10  <- patients[patients$datum >= 19970000,][grep(icd10,patients[patients$dat
 ptnts <- bind_rows(ICD7,ICD8,ICD9,ICD10) %>% group_by(group) %>% filter(row_number(datum)==1) %>% ungroup %>% rename(date.Severe_liver_disease=datum,diagnos.Severe_liver_disease=diagnos) 
 Matrix <- left_join(Matrix,ptnts,by=c("group"="group"),copy=T)
 Matrix <- Matrix %>% mutate(Severe_liver_disease=if_else(!is.na(date.Severe_liver_disease),1,0,missing=0))
-Matrix <- Matrix %>% mutate(Severe_liver_disease=if_else(Mild_liver_disease=1 & Liver_special==1,1,Severe_liver_disease))
+Matrix <- Matrix %>% mutate(Severe_liver_disease=if_else(Mild_liver_disease==1 & Liver_special==1,1,Severe_liver_disease))
 Matrix <- Matrix %>% mutate(Mild_liver_disease=if_else(Severe_liver_disease==1,0,Mild_liver_disease))
 rm(icd7, icd8, icd9, icd10, ICD7, ICD8, ICD9, ICD10, ptnts)
 
