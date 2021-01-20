@@ -150,7 +150,7 @@ drop ICD7-ICD10
 gen ICD7 = regexm(diagnos, " 581") & datum < 19690000
 gen ICD8 = regexm(diagnos, " 070| 571| 573") & datum > 19690000 & datum < 19870000
 gen ICD9 = regexm(diagnos, " 070| 571C| 571E| 571F| 573") & datum > 19870000 & datum < 19980000
-gen ICD10 = regexm(diagnos, " B15| B16| B17| B18| B19| K703| K73| K746| K754") & datum > 19970000
+gen ICD10 = regexm(diagnos, " B15| B16| B17| B18| B19| K703| K709| K73| K746| K754") & datum > 19970000
 gen ch13 = 1 if ICD7==1 | ICD8==1 | ICD9==1 | ICD10==1
 drop ICD7-ICD10
 
