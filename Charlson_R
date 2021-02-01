@@ -113,7 +113,7 @@ rm(icd7, icd8, icd9, icd10, ICD7, ICD8, ICD9, ICD10, ptnts)
 # Chronic_other_pulmonary_disease
 icd7  <- paste(c("\\<241",501,523:526),collapse="|\\<")
 icd8  <- paste(c("\\<490",493,515:518),collapse="|\\<")
-icd9  <- paste(c("\\<490",493:495,501:508,516,517),collapse="|\\<")
+icd9  <- paste(c("\\<490",493:495,500:508,516,517),collapse="|\\<")
 icd10 <- paste(c("\\<J45",41,42,46,47,60:70),collapse="|\\<J")
 
 ICD7  <- patients[patients$datum<19690000,][grep(icd7,patients[patients$datum<19690000,]$diagnos),]
