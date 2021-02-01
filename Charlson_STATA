@@ -93,7 +93,7 @@ drop ICD7-ICD10
 * Chronic other pulmonary disease
 gen ICD7 = regexm(diagnos, " 241| 501| 523| 524| 525| 526") & datum < 19690000
 gen ICD8 = regexm(diagnos, " 490| 493| 515| 516| 517| 518") & datum > 19690000 & datum < 19870000
-gen ICD9 = regexm(diagnos, " 490| 493| 494| 495| 501| 502| 503| 504| 505| 506| 507| 508| 516| 517") & datum > 19870000 & datum < 19980000
+gen ICD9 = regexm(diagnos, " 490| 493| 494| 495| 500| 501| 502| 503| 504| 505| 506| 507| 508| 516| 517") & datum > 19870000 & datum < 19980000
 gen ICD10 = regexm(diagnos, " J41| J42| J45| J46| J47| J60| J61| J62| J63| J64| J65| J66| J67| J68| J69| J70") & datum > 19970000
 gen ch6 = 1 if ICD7==1 | ICD8==1 | ICD9==1 | ICD10==1
 drop ICD7-ICD10
