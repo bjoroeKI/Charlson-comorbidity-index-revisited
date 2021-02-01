@@ -229,7 +229,7 @@ data TEMP.CCI0 (compress=yes);
 			if DX(i) IN: ('410', '412')																		then _myocardial_infarction = 1;
 
 			if DX(i) IN: ('505', '506', '507', '508', '516', '517', '490', 
-						  '493', '494', '495', '501', '502', '503', '504')									then _other_cpd = 1;
+						  '493', '494', '495', '500', '501', '502', '503', '504')									then _other_cpd = 1;
 
 			if DX(i) IN: ('440', '441', '557', '443B', '443X', '447B')										then _peripheral_vascular = 1;
 
