@@ -280,7 +280,7 @@ rm(icd7, icd8, icd9, icd10, ICD7, ICD8, ICD9, ICD10, ptnts)
 icd7   <- paste(paste("\\<",paste(140:190,collapse = "|\\<"),sep=""), paste("|\\<",paste(192:197,collapse = "|\\<"),sep=""), paste("|\\<",paste(200:204,collapse = "|\\<"),sep=""),sep="")
 icd8   <- paste(paste("\\<",paste(c(140:172,174),collapse = "|\\<"),sep=""), paste("|\\<",paste(c(180:207,209),collapse = "|\\<"),sep=""),sep="")
 icd9   <- paste(paste("\\<",paste(140:208,collapse = "|\\<"),sep=""),sep="")
-icd10  <- paste("\\<C00|\\<C0",paste(1:9,collapse = "|\\<C0",sep=""),paste("|\\<C",paste(10:86,collapse = "|\\<C"),sep=""),paste("|\\<C",paste(88:97,collapse = "|\\<C"),sep=""),sep="")
+icd10  <- paste("\\<C00|\\<C0",paste(1:9,collapse = "|\\<C0",sep=""),paste("|\\<C",paste(10:76,collapse = "|\\<C"),sep=""),paste("|\\<C",paste(81:86,collapse = "|\\<C"),sep=""),paste("|\\<C",paste(88:97,collapse = "|\\<C"),sep=""),sep="")
 
 ICD7  <- patients[patients$datum<19690000,][grep(icd7,patients[patients$datum<19690000,]$diagnos),]
 ICD8  <- patients[patients$datum >= 19690000 & patients$datum < 19870000,][grep(icd8,patients[patients$datum >= 19690000 & patients$datum < 19870000,]$diagnos),]
