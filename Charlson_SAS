@@ -270,7 +270,7 @@ data TEMP.CCI0 (compress=yes);
 
 			if DX(i) IN: ('G114', 'G80', 'G81', 'G82', 'G830', 'G831', 'G832', 'G833', 'G838')						then _hemiplegia = 1;
 
-			if DX(i) IN: ('B20', 'B21', 'B22', 'B23', 'B24', 'F024', 'Z711', 'Z219', 'Z114', 'R75', 'O987')	then _aids = 1;
+			if DX(i) IN: ('B20', 'B21', 'B22', 'B23', 'B24', 'F024', 'Z717', 'Z219', 'Z114', 'R75', 'O987')	then _aids = 1;
 
 			if DX(i) IN: ('R18')																			then _liver_special = 1;
 
