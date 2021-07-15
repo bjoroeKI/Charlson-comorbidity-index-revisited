@@ -195,7 +195,7 @@ drop ICD7-ICD10
 
 * Aids
 gen ICD9 = regexm(diagnos, " 079J| 279K") & datum > 19870000 & datum < 19980000
-gen ICD10 = regexm(diagnos, " B20| B21| B22| B23| B24| F024| O987| R75| Z114| Z219| Z711") & datum > 19970000
+gen ICD10 = regexm(diagnos, " B20| B21| B22| B23| B24| F024| O987| R75| Z114| Z219| Z717") & datum > 19970000
 gen ch19 = 1 if ICD9==1 | ICD10==1
 drop ICD9-ICD10
 
