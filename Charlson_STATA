@@ -8,12 +8,14 @@
 *  The actual scripts (available in R, STATA and SAS) were created by Bjorn Roelstraete and Jonas Söderling. Data management: Mariam Lashkariani
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
+** version 4
+
 ** Help
 
 * Import patient file in long format. The patient file should contain three columns:
 * One column with patient/ID numbers,
 * one column with ICD codes, 
-* and one column with dates. 
+* and one column with dates. As of version 4 of the script, it is recommended to use the OUTDATE to look for ICD codes, and the INDATE to define disease onset. 
 * The codes should be a string variable with different ICD codes separated by a whitespace. 
 * ICD7 and ICD8 codes can have a comma, ICD9 and ICD10 codes should not have a dot.
 * The date column should be formatted as yyyymmdd.
@@ -29,7 +31,7 @@ import  " "
 * Rename ICD codes column to "diagnos", date column to "datum", and patient ID column to "group"
 ****************************************************************************************
 rename diagnos diagnos
-rename indatuma datum
+rename utdatuma datum
 rename lopnr group
 keep diagnos datum group
 
@@ -60,7 +62,7 @@ drop ICD7-ICD10
 
 * Congestive heart failure
 gen ICD7 = regexm(diagnos, " 422,21| 422,22| 434,1| 434,2") & datum < 19690000
-gen ICD8 = regexm(diagnos, " 425,08| 425,09| 427| 427,1| 428") & datum > 19690000 & datum < 19870000
+gen ICD8 = regexm(diagnos, " 425,08| 425,09| 427,0| 427,1| 428") & datum > 19690000 & datum < 19870000
 gen ICD9 = regexm(diagnos, " 402A| 402B| 402X| 404A| 404B| 404X| 425E| 425F| 425H| 425W| 425X| 428") & datum > 19870000 & datum < 19980000
 gen ICD10 = regexm(diagnos, " I110| I130| I132| I255| I420| I426| I427| I428| I429| I43| I50") & datum > 19970000
 gen ch2 = 1 if ICD7==1 | ICD8==1 | ICD9==1 | ICD10==1
@@ -99,8 +101,8 @@ gen ch6 = 1 if ICD7==1 | ICD8==1 | ICD9==1 | ICD10==1
 drop ICD7-ICD10
 
 * Rheumatic_disease
-gen ICD7 = regexm(diagnos, " 710| 722| 722,23| 456,0| 456,1| 456,2| 456,3") & datum < 19690000
-gen ICD8 = regexm(diagnos, " 446| 696| 712,0| 712,1| 712,2| 712,3| 712,5| 716| 734| 734,1| 734,9") & datum > 19690000 & datum < 19870000
+gen ICD7 = regexm(diagnos, " 722,00| 722,01| 722,10| 722,20| 722,23| 456,0| 456,1| 456,2| 456,3") & datum < 19690000
+gen ICD8 = regexm(diagnos, " 446| 696| 712,0| 712,1| 712,2| 712,3| 712,5| 716| 734,0| 734,1| 734,9") & datum > 19690000 & datum < 19870000
 gen ICD9 = regexm(diagnos, " 446| 696A| 710A| 710B| 710C| 710D| 710E| 714| 719D| 720| 725") & datum > 19870000 & datum < 19980000
 gen ICD10 = regexm(diagnos, " M05| M06| M123| M070| M071| M072| M073| M08| M13| M30| M313| M314| M315| M316| M32| M33| M34| M350| M351| M353| M45| M46") & datum > 19970000
 gen ch7 = 1 if ICD7==1 | ICD8==1 | ICD9==1 | ICD10==1
@@ -115,7 +117,7 @@ gen ch8 = 1 if ICD7==1 | ICD8==1 | ICD9==1 | ICD10==1
 drop ICD7-ICD10
 
 * Hemiplegia
-gen ICD7 = regexm(diagnos, " 351| 352| 357") & datum < 19690000
+gen ICD7 = regexm(diagnos, " 351| 352| 357,00") & datum < 19690000
 gen ICD8 = regexm(diagnos, " 343| 344") & datum > 19690000 & datum < 19870000
 gen ICD9 = regexm(diagnos, " 342| 343| 344A| 344B| 344C| 344D| 344E| 344F") & datum > 19870000 & datum < 19980000
 gen ICD10 = regexm(diagnos, " G114| G80| G81| G82| G830| G831| G832| G833| G838") & datum > 19970000
@@ -124,7 +126,7 @@ drop ICD7-ICD10
 
 * Diabetes_without_chronic_complication
 gen ICD7 = regexm(diagnos, " 260,09") & datum < 19690000
-gen ICD8 = regexm(diagnos, " 250| 250,07| 250,08") & datum > 19690000 & datum < 19870000
+gen ICD8 = regexm(diagnos, " 250,00| 250,07| 250,08") & datum > 19690000 & datum < 19870000
 gen ICD9 = regexm(diagnos, " 250A| 250B| 250C") & datum > 19870000 & datum < 19980000
 gen ICD10 = regexm(diagnos, " E100| E101| E110| E111| E120| E121| E130| E131| E140| E141") & datum > 19970000
 gen ch10 = 1 if ICD7==1 | ICD8==1 | ICD9==1 | ICD10==1
@@ -140,7 +142,7 @@ drop ICD7-ICD10
 
 * Renal_disease
 gen ICD7 = regexm(diagnos, " 592| 593| 792") & datum < 19690000
-gen ICD8 = regexm(diagnos, " 582| 583| 584| 792| 593| 403,99| 404,99| 792,99| Y29,01") & datum > 19690000 & datum < 19870000
+gen ICD8 = regexm(diagnos, " 582| 583| 584| 792| 593,00| 403,99| 404,99| 792,99| Y29,01") & datum > 19690000 & datum < 19870000
 gen ICD9 = regexm(diagnos, " 403A| 403B| 403X| 582| 583| 585| 586| 588A| V42A| V45B| V56") & datum > 19870000 & datum < 19980000
 gen ICD10 = regexm(diagnos, " I120| I131| N032| N033| N034| N035| N036| N037| N052| N053| N054| N055| N056| N057| N11| N18| N19| N250| Q611| Q612| Q613| Q614| Z49| Z940| Z992") & datum > 19970000
 gen ch12 = 1 if ICD7==1 | ICD8==1 | ICD9==1 | ICD10==1
@@ -163,7 +165,7 @@ drop ICD8-ICD10
 
 * moderate severe liver disease
 gen ICD7 = regexm(diagnos, " 462,1") & datum < 19690000
-gen ICD8 = regexm(diagnos, " 456| 571,9| 573,02") & datum > 19690000 & datum < 19870000
+gen ICD8 = regexm(diagnos, " 456,0| 571,9| 573,02") & datum > 19690000 & datum < 19870000
 gen ICD9 = regexm(diagnos, " 456A| 456B| 456C| 572C| 572D| 572E") & datum > 19870000 & datum < 19980000
 gen ICD10 = regexm(diagnos, " I850| I859| I982| I983") & datum > 19970000
 gen ch15 = 1 if ICD7==1 | ICD8==1 | ICD9==1 | ICD10==1
@@ -180,8 +182,8 @@ drop ICD7-ICD10
 * Malignancy
 gen ICD7 = regexm(diagnos, " 140| 141| 142| 143| 144| 145| 146| 147| 148| 149| 150| 151| 152| 153| 154| 155| 156| 157| 158| 159| 160| 161| 162| 163| 164| 165| 166| 167| 168| 169| 170| 171| 172| 173| 174| 175| 176| 177| 178| 179| 180| 181| 182| 183| 184| 185| 186| 187| 188| 189| 190| 192| 193| 194| 195| 196| 197| 200| 201| 202| 203| 204") & datum < 19690000
 gen ICD8 = regexm(diagnos, " 140| 141| 142| 143| 144| 145| 146| 147| 148| 149| 150| 151| 152| 153| 154| 155| 156| 157| 158| 159| 160| 161| 162| 163| 164| 165| 166| 167| 168| 169| 170| 171| 172| 174| 180| 181| 182| 183| 184| 185| 186| 187| 188| 189| 190| 191| 192| 193| 194| 195| 196| 197| 198| 199| 200| 201| 202| 203| 204| 205| 206| 207| 209") & datum > 19690000 & datum < 19870000
-gen ICD9 = regexm(diagnos, " 140| 141| 142| 143| 144| 145| 146| 147| 148| 149| 150| 151| 152| 153| 154| 155| 156| 157| 158| 159| 160| 161| 162| 163| 164| 165| 166| 167| 168| 169| 170| 171| 172| 173| 174| 175| 176| 177| 178| 179| 180| 181| 182| 183| 184| 185| 186| 187| 188| 189| 190| 191| 192| 193| 194| 195| 196| 197| 198| 199| 200| 201| 202| 203| 204| 205| 206| 207| 208") & datum > 19870000 & datum < 19980000
-gen ICD10 = regexm(diagnos, " C00| C01| C02| C03| C04| C05| C06| C07| C08| C09| C10| C11| C12| C13| C14| C15| C16| C17| C18| C19| C20| C21| C22| C23| C24| C25| C26| C27| C28| C29| C30| C31| C32| C33| C34| C35| C36| C37| C38| C39| C40| C41| C42| C43| C44| C45| C46| C47| C48| C49| C50| C51| C52| C53| C54| C55| C56| C57| C58| C59| C60| C61| C62| C63| C64| C65| C66| C67| C68| C69| C70| C71| C72| C73| C74| C75| C76| C81| C82| C83| C84| C85| C86| C88| C89| C90| C91| C92| C93| C94| C95| C96| C97") & datum > 19970000
+gen ICD9 = regexm(diagnos, " 140| 141| 142| 143| 144| 145| 146| 147| 148| 149| 150| 151| 152| 153| 154| 155| 156| 157| 158| 159| 160| 161| 162| 163| 164| 165| 166| 167| 168| 169| 170| 171| 172| 174| 175| 176| 177| 178| 179| 180| 181| 182| 183| 184| 185| 186| 187| 188| 189| 190| 191| 192| 193| 194| 195| 196| 197| 198| 199| 200| 201| 202| 203| 204| 205| 206| 207| 208") & datum > 19870000 & datum < 19980000
+gen ICD10 = regexm(diagnos, " C00| C01| C02| C03| C04| C05| C06| C07| C08| C09| C10| C11| C12| C13| C14| C15| C16| C17| C18| C19| C20| C21| C22| C23| C24| C25| C26| C27| C28| C29| C30| C31| C32| C33| C34| C35| C36| C37| C38| C39| C40| C41| C43| C45| C46| C47| C48| C49| C50| C51| C52| C53| C54| C55| C56| C57| C58| C59| C60| C61| C62| C63| C64| C65| C66| C67| C68| C69| C70| C71| C72| C73| C74| C75| C76| C81| C82| C83| C84| C85| C86| C88| C89| C90| C91| C92| C93| C94| C95| C96| C97") & datum > 19970000
 gen ch17 = 1 if ICD7==1 | ICD8==1 | ICD9==1 | ICD10==1
 drop ICD7-ICD10
 
@@ -195,7 +197,7 @@ drop ICD7-ICD10
 
 * Aids
 gen ICD9 = regexm(diagnos, " 079J| 279K") & datum > 19870000 & datum < 19980000
-gen ICD10 = regexm(diagnos, " B20| B21| B22| B23| B24| F024| O987| R75| Z114| Z219| Z717") & datum > 19970000
+gen ICD10 = regexm(diagnos, " B20| B21| B22| B23| B24| F024| O987| R75| Z219| Z717") & datum > 19970000
 gen ch19 = 1 if ICD9==1 | ICD10==1
 drop ICD9-ICD10
 
