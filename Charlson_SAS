@@ -63,14 +63,14 @@ data TEMP.testdata (compress=yes);
 	infile "&IMPORT.\ "
 	delimiter = ',' MISSOVER DSD lrecl=32767 firstobs=2 ;
          informat LopNr best32. ;
-         informat INDATUMA $12. ;
+         informat OUTDATE $12. ;
          informat DIAGNOS $200. ;
          format LopNr best12. ;
-         format INDATUMA $12. ;
+         format OUTDATE $12. ;
          format DIAGNOS $200. ;
       input
                   LopNr
-                  INDATUMA $
+                  OUTDATE $
                   DIAGNOS  $
                         ;
 run;
@@ -86,7 +86,7 @@ data TEMP.CCI0 (compress=yes);
 	set TEMP.testdata;
 
 	format indatum YYMMDD10.;
-	indatum = input(indatuma, YYMMDD8.);
+	outdatum = input(outdate, YYMMDD8.);
 
 	array DX $ dia1-dia50;
 
@@ -100,7 +100,7 @@ data TEMP.CCI0 (compress=yes);
 	DO i=1 to NumDias;
 
 		*--- ICD7 ---*;
-		if 1968 >= year(indatum) then do;
+		if 1968 >= year(outdatum) then do;
 			if DX(i) IN: ('140', '141', '142', '143', '144', '145', '146', '147', '148', '149', 
 						  '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', 
 						  '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', 
@@ -137,14 +137,14 @@ data TEMP.CCI0 (compress=yes);
 
 			if DX(i) IN: ('451', '453', '450,1')															then _peripheral_vascular = 1;
 
-			if DX(i) IN: ('710', '722', '456,0', '456,1', '456,2', '456,3', '722,23')						then _rheumatic = 1;
+			if DX(i) IN: ('722,00','722,01','722,10','722,20', '456,0', '456,1', '456,2', '456,3', '722,23')						then _rheumatic = 1;
 
 			if DX(i) IN: ('540', '541', '542')																then _ulcer = 1;
 		end;
 
 
 		*--- ICD8 ---*;
-		if 1969 <= year(indatum) <= 1986 then do;
+		if 1969 <= year(outdatum) <= 1986 then do;
 			if DX(i) IN: ('140', '141', '142', '143', '144', '145', '146', '147', '148', '149', 
 						  '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', 
 						  '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', 
@@ -157,11 +157,11 @@ data TEMP.CCI0 (compress=yes);
 
 			if DX(i) IN: ('491', '492')		 														then _copd = 1;
 
-			if DX(i) IN: ('427', '428', '425,08', '425,09', '427,1')		 								then _chf = 1;
+			if DX(i) IN: ('427,0', '428', '425,08', '425,09', '427,1')		 								then _chf = 1;
 
 			if DX(i) IN: ('290')		 																	then _dementia = 1;
 
-			if DX(i) IN: ('250', '250,07', '250,08')														then _diabetes = 1;
+			if DX(i) IN: ('250,00', '250,07', '250,08')														then _diabetes = 1;
 
 			if DX(i) IN: ('250,01', '250,02', '250,03', '250,04', '250,05')									then _diabetes_eod = 1;
 
@@ -173,9 +173,9 @@ data TEMP.CCI0 (compress=yes);
 
 			if DX(i) IN: ('571', '573', '070')																then _mild_liver_disease = 1;
 
-			if DX(i) IN: ('582', '583', '584', '593', '792', '403,99', '404,99', '792,99', 'Y29,01')		then _severe_kidney_disease = 1;
+			if DX(i) IN: ('582', '583', '584', '593,00', '792', '403,99', '404,99', '792,99', 'Y29,01')		then _severe_kidney_disease = 1;
 
-			if DX(i) IN: ('456', '571,9', '573,02')															then _severe_liver_disease = 1;
+			if DX(i) IN: ('456,0', '571,9', '573,02')															then _severe_liver_disease = 1;
 
 			if DX(i) IN: ('410', '411', '412,01', '412,91')													then _myocardial_infarction = 1;
 
@@ -183,7 +183,7 @@ data TEMP.CCI0 (compress=yes);
 
 			if DX(i) IN: ('440', '441', '443,1', '443,9')													then _peripheral_vascular = 1;
 
-			if DX(i) IN: ('446', '696', '716', '734', 
+			if DX(i) IN: ('446', '696', '716', '734,0', 
 						  '712,0', '712,1', '712,2', '712,3', '712,5', '734,1', '734,9')					then _rheumatic = 1;
 
 			if DX(i) IN: ('531', '532', '533', '534')														then _ulcer = 1;
@@ -191,11 +191,11 @@ data TEMP.CCI0 (compress=yes);
 
 
 		*--- ICD9 ---*;
-		if 1987 <= year(indatum) <= 1997 then do;
+		if 1987 <= year(outdatum) <= 1997 then do;
 			if DX(i) IN: ('140', '141', '142', '143', '144', '145', '146', '147', '148', '149', 
 						  '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', 
 						  '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', 
-						  '170', '171', '172', '173', '174', '175', '176', '177', '178', '179',
+						  '170', '171', '172', '174', '175', '176', '177', '178', '179',
 						  '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', 
 						  '190', '191', '192', '193', '194', '195', '196', '197', '198', '199', 
 						  '200', '201', '202', '203', '204', '205', '206', '207', '208')					then _malignancy = 1;
@@ -243,13 +243,13 @@ data TEMP.CCI0 (compress=yes);
 
 
 			*--- ICD10 ---*;
-		if 1997 <= year(indatum) then do;
+		if 1997 <= year(outdatum) then do;
 			if DX(i) IN: ('C00', 'C01', 'C02', 'C03', 'C04', 'C05', 'C06', 'C07', 'C08', 'C09', 
 						  'C10', 'C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 
 						  'C20', 'C21', 'C22', 'C23', 'C24', 'C25', 'C26', 'C27', 'C28', 'C29', 
 						  'C30', 'C31', 'C32', 'C33', 'C34', 'C35', 'C36', 'C37', 'C38', 'C39',
-						  'C40', 'C41', 'C42', 'C43', 'C44', 'C45', 'C46', 'C47', 'C48', 'C49', 
-						  'C50', 'C51', 'C52', 'C53', 'C54', 'C55', 'C56', 'C57', 'C58', 'C59',
+						  'C40', 'C41', 'C43', 'C45', 'C46', 'C47', 'C48', 'C49', 
+						  'C50', 'C51', 'C52', 'C53', 'C54', 'C55', 'C56', 'C57', 'C58',
 						  'C60', 'C61', 'C62', 'C63', 'C64', 'C65', 'C66', 'C67', 'C68', 'C69',
 						  'C70', 'C71', 'C72', 'C73', 'C74', 'C75', 'C76', 'C81', 'C82', 'C83',
 						  'C84', 'C85', 'C86', 'C88', 'C89', 'C90', 'C91', 'C92', 'C93', 'C94', 
@@ -272,7 +272,7 @@ data TEMP.CCI0 (compress=yes);
 
 			if DX(i) IN: ('G114', 'G80', 'G81', 'G82', 'G830', 'G831', 'G832', 'G833', 'G838')						then _hemiplegia = 1;
 
-			if DX(i) IN: ('B20', 'B21', 'B22', 'B23', 'B24', 'F024', 'Z717', 'Z219', 'Z114', 'R75', 'O987')	then _aids = 1;
+			if DX(i) IN: ('B20', 'B21', 'B22', 'B23', 'B24', 'F024', 'Z717', 'Z219', 'R75', 'O987')	then _aids = 1;
 
 			if DX(i) IN: ('R18')																			then _liver_special = 1;
 
