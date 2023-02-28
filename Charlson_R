@@ -8,12 +8,14 @@
 # The actual scripts (available in R, STATA and SAS) were created by Bjorn Roelstraete and Jonas Söderling. Data management: Mariam Lashkariani
 ##########################################################################################################
 
+## version 4
+
 ## Help
 
 # Import patient file in long format. The patient file should contain three columns:
 # One column with patient/ID numbers,
 # one column with ICD codes, 
-# and one column with dates. 
+# and one column with dates. As of version 4 of the script, it is recommended to use the OUTDATE to look for ICD codes, and the INDATE to define disease onset. 
 # The codes should be a string variable with different ICD codes separated by a whitespace. 
 # ICD7 and ICD8 codes can have a comma, ICD9 and ICD10 codes should not have a dot.
 # The date column should be formatted as yyyymmdd.
@@ -28,7 +30,7 @@ patients <-
 
 # Rename the date column to "datum", the ICD codes column to "diagnos" and the patient/id column to "group" 
 # and drop the other columns
-patients <- rename(patients, group=LopNr ,datum=INDATUMA , diagnos=diagnos) %>% select(group, datum, diagnos)
+patients <- rename(patients, group=LopNr ,datum=OUTDATE , diagnos=diagnos) %>% select(group, datum, diagnos)
 
 # Create object to store the Charlson score with one line per patient/ID.
 Matrix <- distinct(patients,group)
@@ -52,7 +54,7 @@ rm(icd7, icd8, icd9, icd10, ICD7, ICD8, ICD9, ICD10, ptnts)
 
 # Congestive_heart_failure
 icd7  <- "\\<422,21|\\<422,22|\\<434,1|\\<434,2"
-icd8  <- "\\<425,08|\\<425,09|\\<427|\\<427,1|\\<428"
+icd8  <- "\\<425,08|\\<425,09|\\<427,0|\\<427,1|\\<428"
 icd9  <- paste(c("\\<402A", "402B", "402X", "404A","404B","404X","425E","425F","425H","425W","425X","428"),collapse="|\\<")
 icd10 <- "\\<I110|\\<I130|\\<I132|\\<I255|\\<I420|\\<I426|\\<I427|\\<I428|\\<I429|\\<I43|\\<I50"
 
@@ -126,8 +128,8 @@ Matrix <- Matrix %>% mutate(Chronic_other_pulmonary_disease=if_else(!is.na(date.
 rm(icd7, icd8, icd9, icd10, ICD7, ICD8, ICD9, ICD10, ptnts)
 
 # Rheumatic_disease
-icd7  <- paste(c("\\<710",722,"722,23","456,0","456,1","456,2","456,3"),collapse="|\\<")
-icd8  <- paste(c("\\<446",696,"712,0","712,1","712,2","712,3","712,5", 716, 734, "734,1", "734,9"),collapse="|\\<")
+icd7  <- paste(c("\\<722,00","722,01","722,10","722,20","722,23","456,0","456,1","456,2","456,3"),collapse="|\\<")
+icd8  <- paste(c("\\<446",696,"712,0","712,1","712,2","712,3","712,5", 716, "734,0", "734,1", "734,9"),collapse="|\\<")
 icd9  <- paste(c("\\<446","696A","710A","710B","710C","710D","710E",714,"719D",720,725),collapse="|\\<")
 icd10 <- paste(c("\\<M05","06",123,"070","071","072","073","08",13,30,313:316,32:34,350:351,353,45:46),collapse="|\\<M")
 
@@ -172,7 +174,7 @@ rm(icd7, icd8, icd9, icd10, ICD7, ICD8, ICD9, ICD10, ptnts)
 
 # Diabetes_without_chronic_complication
 icd7 <- "\\<260,09"
-icd8 <-  "\\<250|\\<250,07|\\<250,08"
+icd8 <-  "\\<250,00|\\<250,07|\\<250,08"
 icd9 <- "\\<250A|\\<250B|\\<250C"
 icd10 <- "\\<E100|\\<E101|\\<E110|\\<E111|\\<E120|\\<E121|\\<E130|\\<E131|\\<E140|\\<E141"
 
@@ -246,7 +248,7 @@ rm(icd8, icd9, icd10, ICD8, ICD9, ICD10, ptnts)
 
 # moderate severe liver disease
 icd7 <- "\\<462,1"
-icd8 <- "\\<456|\\<571,9|\\<573,02"
+icd8 <- "\\<"456,0"|\\<571,9|\\<573,02"
 icd9 <- "\\<456A|\\<456B|\\<456C|\\<572C|\\<572D|\\<572E"
 icd10 <-  "\\<I850|\\<I859|\\<I982|\\<I983"
 
@@ -279,8 +281,8 @@ rm(icd7, icd8, icd9, icd10, ICD7, ICD8, ICD9, ICD10, ptnts)
 # Malignancy
 icd7   <- paste(paste("\\<",paste(140:190,collapse = "|\\<"),sep=""), paste("|\\<",paste(192:197,collapse = "|\\<"),sep=""), paste("|\\<",paste(200:204,collapse = "|\\<"),sep=""),sep="")
 icd8   <- paste(paste("\\<",paste(c(140:172,174),collapse = "|\\<"),sep=""), paste("|\\<",paste(c(180:207,209),collapse = "|\\<"),sep=""),sep="")
-icd9   <- paste(paste("\\<",paste(140:208,collapse = "|\\<"),sep=""),sep="")
-icd10  <- paste("\\<C00|\\<C0",paste(1:9,collapse = "|\\<C0",sep=""),paste("|\\<C",paste(10:76,collapse = "|\\<C"),sep=""),paste("|\\<C",paste(81:86,collapse = "|\\<C"),sep=""),paste("|\\<C",paste(88:97,collapse = "|\\<C"),sep=""),sep="")
+icd9   <- paste(paste("\\<",paste(140:172,collapse = "|\\<"),sep=""), paste("|\\<",paste(174:208,collapse = "|\\<"),sep=""),sep="")
+icd10  <- paste("\\<C00|\\<C0",paste(1:9,collapse = "|\\<C0",sep=""),paste("|\\<C",paste(10:43,collapse = "|\\<C"),sep=""),paste("|\\<C",paste(45:76,collapse = "|\\<C"),sep=""),paste("|\\<C",paste(81:86,collapse = "|\\<C"),sep=""),paste("|\\<C",paste(88:97,collapse = "|\\<C"),sep=""),sep="")
 
 ICD7  <- patients[patients$datum<19690000,][grep(icd7,patients[patients$datum<19690000,]$diagnos),]
 ICD8  <- patients[patients$datum >= 19690000 & patients$datum < 19870000,][grep(icd8,patients[patients$datum >= 19690000 & patients$datum < 19870000,]$diagnos),]
@@ -309,7 +311,7 @@ rm(icd7, icd8, icd9, icd10, ICD7, ICD8, ICD9, ICD10, ptnts)
 
 # Aids
 icd9  <- "\\<079J|\\<279K"
-icd10 <- "\\<B20|\\<B21|\\<B22|\\<B23|\\<B24|\\<F024|\\<O987|\\<R75|\\<Z114|\\<Z219|\\<Z717"
+icd10 <- "\\<B20|\\<B21|\\<B22|\\<B23|\\<B24|\\<F024|\\<O987|\\<R75|\\<Z219|\\<Z717"
 
 ICD9 <- patients[patients$datum >= 19870000 & patients$datum < 19980000,][grep(icd9,patients[patients$datum >= 19870000 & patients$datum < 19980000,]$diagnos),]
 ICD10  <- patients[patients$datum >= 19970000,][grep(icd10,patients[patients$datum >= 19970000,]$diagnos),]
