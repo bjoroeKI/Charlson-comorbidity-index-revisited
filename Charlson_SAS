@@ -10,12 +10,14 @@
 # The actual scripts (available in R, STATA and SAS) were created by Bjorn Roelstraete and Jonas Söderling. Data management: Mariam Lashkariani
 ##########################################################################################################
 
+## version 4
+
 ## Help
 
 # Import patient file in long format. The patient file should contain three columns:
 # One column with patient/ID numbers,
 # one column with ICD codes, 
-# and one column with dates. 
+# and one column with dates. As of version 4 of the script, it is recommended to use the OUTDATE to look for ICD codes, and the INDATE to define disease onset. 
 # The codes should be a string variable with different ICD codes separated by a whitespace. 
 # ICD7 and ICD8 codes can have a comma, ICD9 and ICD10 codes should not have a dot.
 # The date column should be formatted as yyyymmdd. */
@@ -102,7 +104,7 @@ data TEMP.CCI0 (compress=yes);
 			if DX(i) IN: ('140', '141', '142', '143', '144', '145', '146', '147', '148', '149', 
 						  '150', '151', '152', '153', '154', '155', '156', '157', '158', '159', 
 						  '160', '161', '162', '163', '164', '165', '166', '167', '168', '169', 
-						  '170', '171', '172', '173', '174', '175', '176', '177', '178', '179', 
+						  '170', '171', '172', '174', '175', '176', '177', '178', '179', 
 						  '180', '181', '182', '183', '184', '185', '186', '187', '188', '189', 
 						  '190', 		'192', '193', '194', '195', '196', '197', 
 						  '200', '201', '202', '203', '204')									     		then _malignancy = 1;
@@ -119,7 +121,7 @@ data TEMP.CCI0 (compress=yes);
 
 			if DX(i) IN: ('260,2', '260,21', '260,29', '260,3', '260,4', '260,49', '260,99')				then _diabetes_eod = 1;
 
-			if DX(i) IN: ('351', '352', '357')																then _hemiplegia = 1;
+			if DX(i) IN: ('351', '352', '357,00')																then _hemiplegia = 1;
 
 			if DX(i) IN: ('198', '199', '156,91')															then _metastatic_cancer = 1;
 
