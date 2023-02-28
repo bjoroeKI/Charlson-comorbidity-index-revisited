@@ -158,7 +158,7 @@ Matrix <- Matrix %>% mutate(Dementia=if_else(!is.na(date.Dementia),1,0,missing=0
 rm(icd7, icd8, icd9, icd10, ICD7, ICD8, ICD9, ICD10, ptnts)
 
 # Hemiplegia
-icd7 <- "\\<351|\\<352|\\<357"
+icd7 <- "\\<351|\\<352|\\<357,00"
 icd8 <- "\\<343|\\<344"
 icd9 <- "\\<342|\\<343|\\<344A|\\<344B|\\<344C|\\<344D|\\<344E|\\<344F"
 icd10 <- "\\<G114|\\<G80|\\<G81|\\<G82|\\<G830|\\<G831|\\<G832|\\<G833|\\<G838"
