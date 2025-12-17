@@ -176,7 +176,7 @@ rm(icd7, icd8, icd9, icd10, ICD7, ICD8, ICD9, ICD10, ptnts)
 icd7 <- "\\<260,09"
 icd8 <-  "\\<250,00|\\<250,07|\\<250,08"
 icd9 <- "\\<250A|\\<250B|\\<250C"
-icd10 <- "\\<E100|\\<E101|\\<E110|\\<E111|\\<E120|\\<E121|\\<E130|\\<E131|\\<E140|\\<E141"
+icd10 <- "\\<E100|\\<E101|\\<E106|\\<E109|\\<E110|\\<E111|\\<E119|\\<E120|\\<E121|\\<E129|\\<E130|\\<E131|\\<E139|\\<E140|\\<E141|\\<E149"
 
 ICD7  <- patients[patients$datum<19690000,][grep(icd7,patients[patients$datum<19690000,]$diagnos),]
 ICD8  <- patients[patients$datum >= 19690000 & patients$datum < 19870000,][grep(icd8,patients[patients$datum >= 19690000 & patients$datum < 19870000,]$diagnos),]
